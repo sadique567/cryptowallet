@@ -59,21 +59,26 @@ class CreateWalletPageController extends GetxController {
   Future<void> _deriveAndLoad(String m) async {
     try {
       final seed = WalletService.mnemonicToSeed(m);
-      final wallet = WalletService.getEvmWallet(seed, index: 0);
+      final wallet = WalletService.getEvmWallet(seed);
 
       final privateKey = wallet["privateKey"];
       final walletAddress = wallet["address"];
 
+      debugPrint("Pharase : $m");
       debugPrint("🔑 Private Key: $privateKey");
       debugPrint("🏦 Address: $walletAddress");
 
       address.value = walletAddress;
-
+      print("address value : ${address.value}");
       // Load ETH balance from RPC
       final ethAddress = EthereumAddress.fromHex(walletAddress);
+      print("ETH Address : $ethAddress");
       final bal = await web3.getBalance(ethAddress);
+      print("ETH balance  : $bal");
 
       balance.value = bal.getValueInUnit(EtherUnit.ether).toString();
+
+      print("Blance value : ${balance.value}");
     } catch (e) {
       debugPrint("⚠️ Error while deriving wallet: $e");
     }
@@ -99,7 +104,7 @@ class CreateWalletPageController extends GetxController {
       if (m == null) throw Exception('⚠️ No wallet found in storage.');
 
       final seed = WalletService.mnemonicToSeed(m);
-      final wallet = WalletService.getEvmWallet(seed, index: 0);
+      final wallet = WalletService.getEvmWallet(seed);
       final creds = EthPrivateKey.fromHex(wallet["privateKey"]);
 
       final tx = Transaction(

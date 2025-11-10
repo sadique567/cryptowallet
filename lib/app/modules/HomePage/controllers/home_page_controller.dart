@@ -1,11 +1,18 @@
+import 'dart:convert';
 import 'dart:typed_data';
+import 'package:cryptoreliwell/app/api/api_path.dart';
+import 'package:cryptoreliwell/app/data/Storage_data.dart';
+import 'package:cryptoreliwell/app/services/storage_service.dart';
+
 import 'package:get/get.dart';
 import 'package:cryptoreliwell/app/services/wallet_service.dart';
+import 'package:http/http.dart' as http;
 
 class HomePageController extends GetxController {
   RxList<Map<String, dynamic>> coins = <Map<String, dynamic>>[].obs;
   late Uint8List seed;
   final isVisible = true.obs;
+  String mnemonic = '';
 
   @override
   void onInit() {
@@ -15,7 +22,7 @@ class HomePageController extends GetxController {
 
   Future<void> _loadWallets() async {
     // ⚠ Replace with your saved mnemonic from secure storage
-    const mnemonic = "your twelve word mnemonic here";
+    mnemonic = (await StorageService.read(StorageData.PHRASE_MNEMONIC))!;
 
     seed = WalletService.mnemonicToSeed(mnemonic);
 
@@ -24,7 +31,8 @@ class HomePageController extends GetxController {
       'url': "https://cdn-icons-png.flaticon.com/512/14446/14446160.png",
       'name': 'Ethereum',
       'symbol': 'ETH',
-      'address': WalletService.getEvmWallet(seed, index: 0)['address'],
+      'current_price': getPriceStream("ETH"),
+      'address': WalletService.getEvmWallet(seed)['address'],
     });
 
     coins.add({
@@ -33,7 +41,8 @@ class HomePageController extends GetxController {
 
       'name': 'BNB Smart Chain',
       'symbol': 'BNB',
-      'address': WalletService.getEvmWallet(seed, index: 1)['address'],
+      'current_price': getPriceStream("BNB"),
+      'address': WalletService.getEvmWallet(seed)['address'],
     });
 
     coins.add({
@@ -42,7 +51,8 @@ class HomePageController extends GetxController {
 
       'name': 'Polygon',
       'symbol': 'POL',
-      'address': WalletService.getEvmWallet(seed, index: 2)['address'],
+      'current_price': getPriceStream("POL"),
+      'address': WalletService.getEvmWallet(seed)['address'],
     });
 
     coins.add({
@@ -51,7 +61,31 @@ class HomePageController extends GetxController {
 
       'name': 'Arbitrum',
       'symbol': 'ARB',
-      'address': WalletService.getEvmWallet(seed, index: 3)['address'],
+      'current_price': getPriceStream("ARB"),
+      'address': WalletService.getEvmWallet(seed)['address'],
     });
+  }
+
+  Future<String> getCurrentPrice(String coinName) async {
+    String currency_usdt = "USDT";
+    String url = "$CUREENT_PRICE$coinName$currency_usdt";
+    final response = await http.get(Uri.parse(url));
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final price = data['price'];
+      print('price====>$price');
+      return price.toString();
+    } else {
+      print("Failed to load data");
+      return "0";
+    }
+  }
+
+  Stream<String> getPriceStream(String coinSym) async* {
+    while (true) {
+      final price = await getCurrentPrice(coinSym);
+      yield price;
+      // await Future.delayed(const Duration(seconds: 1));
+    }
   }
 }
