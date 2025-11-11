@@ -1,21 +1,38 @@
 import 'package:web3dart/web3dart.dart';
-import 'package:http/http.dart';
 import '../utils/constants.dart';
+import 'package:http/http.dart' as http;
 
 class Web3Service {
-  final Web3Client client;
-  Web3Service._(this.client);
+  late final Web3Client _client;
+  // Web3Service._(this.client);
 
-  factory Web3Service() {
-    final c = Web3Client(RPC_URL, Client());
-    return Web3Service._(c);
+  Web3Service(String rpcUrl) {
+    _client = Web3Client(rpcUrl, http.Client());
+    // return Web3Service._(c);
   }
 
-  Future<EtherAmount> getBalance(EthereumAddress address) async {
-    return await client.getBalance(address);
+  Future<double> getNativeCoinBal(String address) async {
+    try {
+      final ethAddress = EthereumAddress.fromHex(address);
+      final balance = await _client.getBalance(ethAddress);
+      // convert from wei to Eitherium
+      return balance.getValueInUnit(EtherUnit.ether);
+    } catch (e) {
+      rethrow;
+    }   
+  }
+
+  Future<EtherAmount> getBalance(String address) async {
+    final ethAdd = EthereumAddress.fromHex(address);
+
+    return await _client.getBalance(ethAdd);
   }
 
   Future<String> sendTransaction(Credentials creds, Transaction tx) async {
-    return await client.sendTransaction(creds, tx, chainId: CHAIN_ID);
+    return await _client.sendTransaction(creds, tx, chainId: CHAIN_ID);
+  }
+
+  void dispose() {
+    _client.dispose();
   }
 }

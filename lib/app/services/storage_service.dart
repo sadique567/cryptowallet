@@ -1,6 +1,8 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:get/get_state_manager/get_state_manager.dart';
 
-class StorageService {
+class StorageService extends GetxService{
+
   static final _storage = FlutterSecureStorage();
 
   static Future<void> write(String key, String value) async {
@@ -14,4 +16,12 @@ class StorageService {
   static Future<void> delete(String key) async {
     await _storage.delete(key: key);
   }
+
+  // ---------------- set theme
+// Future<FlutterSecureStorage> init() async {
+//   return  FlutterSecureStorage;
+// }
+
+
+
 }

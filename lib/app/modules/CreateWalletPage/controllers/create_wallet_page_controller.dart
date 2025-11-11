@@ -17,13 +17,13 @@ class CreateWalletPageController extends GetxController {
   final privateKeyImp = TextEditingController();
 
   // 🔹 Services
-  late final Web3Service web3;
+  // late final Web3Service web3;
   final WalletService walletService = WalletService();
 
   @override
   void onInit() {
     super.onInit();
-    web3 = Web3Service();
+    // web3 = Web3Service();
     _loadFromStorage();
   }
 
@@ -73,12 +73,12 @@ class CreateWalletPageController extends GetxController {
       // Load ETH balance from RPC
       final ethAddress = EthereumAddress.fromHex(walletAddress);
       print("ETH Address : $ethAddress");
-      final bal = await web3.getBalance(ethAddress);
-      print("ETH balance  : $bal");
+      // final bal = await web3.getBalance(ethAddress);
+      // print("ETH balance  : $bal");
 
-      balance.value = bal.getValueInUnit(EtherUnit.ether).toString();
+      // balance.value = bal.getValueInUnit(EtherUnit.ether).toString();
 
-      print("Blance value : ${balance.value}");
+      // print("Blance value : ${balance.value}");
     } catch (e) {
       debugPrint("⚠️ Error while deriving wallet: $e");
     }
@@ -115,9 +115,9 @@ class CreateWalletPageController extends GetxController {
         ),
       );
 
-      final hash = await web3.sendTransaction(creds, tx);
-      debugPrint("✅ Transaction sent: $hash");
-      return hash;
+      // final hash = await web3.sendTransaction(creds, tx);
+      debugPrint("✅ Transaction sent: ");
+      return ""; // hash;
     } catch (e) {
       debugPrint("❌ Error sending ETH: $e");
       rethrow;
